@@ -16,6 +16,11 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    "no-unused-vars": "warn"
+    "no-unused-vars": ["warn"],
+    "quotes": [
+      "warn",
+      "double"
+    ]
+    //    "space-infix-ops": ["warn"]
   },
 }
