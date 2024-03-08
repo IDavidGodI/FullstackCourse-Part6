@@ -20,7 +20,8 @@ module.exports = {
     "quotes": [
       "warn",
       "double"
-    ]
+    ],
+    "react/prop-types": 1
     //    "space-infix-ops": ["warn"]
   },
 }

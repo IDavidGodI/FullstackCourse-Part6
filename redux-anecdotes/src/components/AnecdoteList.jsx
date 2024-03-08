@@ -1,5 +1,7 @@
-import { useDispatch, useSelector } from "react-redux"
+import { shallowEqual, useDispatch, useSelector } from "react-redux"
 import { voteAnecdote } from "../reducers/anecdoteReducer"
+import { setNotification, hideNotification } from "../reducers/notificationReducer"
+import Notification from "./Notification"
 
 const Anecdote = ({ anecdote }) => {
 
@@ -7,6 +9,10 @@ const Anecdote = ({ anecdote }) => {
 
   const vote = (id) => {
     dispatch(voteAnecdote(id))
+    dispatch(setNotification({
+      text: `You voted '${anecdote.content}'`,
+      timer: setTimeout(() => dispatch(hideNotification()), 5000)
+    }))
   }
   return (
     <>
@@ -21,7 +27,6 @@ const Anecdote = ({ anecdote }) => {
   )
 }
 
-
 const AnecdoteList = () => {
   const anecdotes = useSelector(state => {
     let selectedAnecdotes = state.anecdotes
@@ -31,11 +36,13 @@ const AnecdoteList = () => {
           .includes(state.filter.toLowerCase())
       )
     }
-    return selectedAnecdotes.sort((a1, a2) => a2.votes - a1.votes)
+    return [...selectedAnecdotes].sort((a1, a2) => a2.votes - a1.votes)
   })
+
+  const showNotification = useSelector(state => state.notification.visible)
   return (
     <>
-
+      {showNotification && <Notification />}
       {anecdotes.length > 0 ? anecdotes.map(anecdote =>
         <Anecdote key={anecdote.id} anecdote={anecdote} />
       ) : <p>There's nothing mathing the filter</p>}
