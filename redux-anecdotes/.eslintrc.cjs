@@ -21,7 +21,7 @@ module.exports = {
       "warn",
       "double"
     ],
-    "react/prop-types": 1
+    "react/prop-types": 0
     //    "space-infix-ops": ["warn"]
   },
 }

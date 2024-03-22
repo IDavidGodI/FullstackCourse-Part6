@@ -1,18 +1,16 @@
-import { shallowEqual, useDispatch, useSelector } from "react-redux"
-import { voteAnecdote } from "../reducers/anecdoteReducer"
-import { setNotification, hideNotification } from "../reducers/notificationReducer"
+import { useDispatch, useSelector } from "react-redux"
+import { initializeAnecdotes, voteAnecdote } from "../reducers/anecdoteReducer"
+import { setNotification, hideNotification, createNotification } from "../reducers/notificationReducer"
 import Notification from "./Notification"
+import { useEffect } from "react"
 
 const Anecdote = ({ anecdote }) => {
 
   const dispatch = useDispatch()
 
-  const vote = (id) => {
-    dispatch(voteAnecdote(id))
-    dispatch(setNotification({
-      text: `You voted '${anecdote.content}'`,
-      timer: setTimeout(() => dispatch(hideNotification()), 5000)
-    }))
+  const vote = () => {
+    dispatch(voteAnecdote(anecdote))
+    dispatch(createNotification(`You voted '${anecdote.content}'`, 10))
   }
   return (
     <>
@@ -21,31 +19,34 @@ const Anecdote = ({ anecdote }) => {
       </div>
       <div>
         has {anecdote.votes}
-        <button onClick={() => vote(anecdote.id)}>vote</button>
+        <button onClick={() => vote()}>vote</button>
       </div>
     </>
   )
 }
 
-const AnecdoteList = () => {
-  const anecdotes = useSelector(state => {
-    let selectedAnecdotes = state.anecdotes
-    if (state.filter.length > 0) {
-      selectedAnecdotes = selectedAnecdotes.filter(a =>
-        a.content.toLowerCase()
-          .includes(state.filter.toLowerCase())
-      )
-    }
-    return [...selectedAnecdotes].sort((a1, a2) => a2.votes - a1.votes)
-  })
 
+const AnecdoteList = () => {
+
+  const filter = useSelector(state => state.filter)
+  const anecdotes = useSelector(state => state.anecdotes)
+  const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes)
   const showNotification = useSelector(state => state.notification.visible)
+
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(initializeAnecdotes())
+  }, [dispatch])
   return (
     <>
       {showNotification && <Notification />}
-      {anecdotes.length > 0 ? anecdotes.map(anecdote =>
-        <Anecdote key={anecdote.id} anecdote={anecdote} />
-      ) : <p>There's nothing mathing the filter</p>}
+      {
+        anecdotes.length > 0 ?
+          sortedAnecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase())).map(anecdote =>
+            <Anecdote key={anecdote.id} anecdote={anecdote} />
+          )
+          : <p>There's nothing mathing the filter</p>
+      }
     </>
   )
 }
